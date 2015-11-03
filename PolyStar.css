@@ -1,0 +1,247 @@
+/*
+ * polyStar
+ * V1.0, October 2015
+ ****  JQuery version
+ * 
+ * C. Ian Short
+ * Saint Mary's University
+ * Department of Astronomy and Physics
+ * Institute for Computational Astrophysics (ICA)
+ * Halifax, NS, Canada
+ *
+ * 1D, static, TE, polytropic stellar interior model
+ *
+ * Suitable for pedagogical purposes only
+ * 
+ * Logic developed in Java SE 8.0, JDK 1.8
+ *
+ * Ported to JavaScript for deployment
+ *
+ * System requirements for Java version: Java run-time environment (JRE)
+ * System requirements for JavaScript version: JavaScript intrepretation enabld in WWW browser (usually by default)
+ *
+ * Code provided "as is" - there is no formal support 
+ *
+ * Java default license applies:
+ * End users may adapt, modify, develop, debug, and deploy at will
+ * for academic and othe non-profit uses, but are asked to leave this
+ * header text in place (although they may add to the header text).
+ *
+ */
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 100%;
+    margin: 5px;
+    padding: 5px;
+}
+
+a:link {
+    text-decoration: none;
+    target: _blank;
+}
+
+a:visited {
+    text-decoration: none;
+    target: _blank;
+}
+
+a:hover {
+    color: red;
+    text-decoration: none;
+    target: _blank;
+}
+
+a:active {
+    text-decoration: none;
+    target: _blank;
+}
+
+table {
+    border-spacing: 8px;
+}
+td {
+    font-size: small;
+    padding: 4px;
+    margin: 6px;
+}
+
+th {
+    text-align: left;
+}
+
+.xlabel {
+    font-size: 0.75em;
+}
+
+#subtitle {
+    position: static;
+    display: block;
+    clear: both;
+}
+
+#title {
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    display: block;
+}
+
+
+input {
+    margin-left: 10px;
+}
+
+input:checked {
+    background-color: yellow;
+}
+
+input:focus {
+    background-color: yellow;
+}
+
+#settingsId {
+    font-size: 100%;
+    //position: absolute;
+}
+
+
+#atmosIn, #flipAtmos {
+    background-color: #DDFFDD;
+    //position: absolute;
+}
+
+#pattern {
+    background-color: #EEEE00;
+}
+
+#btnId {
+    width: 100px;
+    height: 50px;
+    border: 6px #99FF99 outset;
+    border-radius: 0%;
+    padding: 6px;
+    font-family: Helvetica;
+    //font-size: large;
+    color: #227777;
+    background-color: #AAFFAA;
+    text-align: center;
+    margin-top: 2px;
+    display: inline;
+    //   opacity:0.65;
+}     
+
+
+.shBtn {
+    width: 400px;
+    height: 100px;
+    border: 2px #FF9999 outset;
+    border-radius: 0%;
+    padding: 2px;
+    font-family: Helvetica;
+    font-size: small;
+    color: #444444;
+    background-color: #FFAAAA;
+    text-align: center;
+    margin-top: 2px;
+    margin-left: 2px;
+    display: inline;
+}
+
+
+//JQUery round sliders:
+
+#index .rs-range-color {
+    //background-color: #5673E7;
+    background-color: cyan;
+}                 
+#index .rs-path-color {
+    background-color: #dedede;
+    //background-color: red;
+}
+#index .rs-handle {
+    background-color: #CCCCCC;
+}
+#index .rs-border {
+    border-color: white;
+}
+//#Teff .rs-bg-color {
+//    background-color: #5673E7;
+//   
+//}  
+
+#log10RhoCSol .rs-range-color {
+    //background-color: #5673E7;
+    background-color: cyan;
+}                 
+#log10RhoCSol .rs-path-color {
+    background-color: #dedede;
+    //background-color: red;
+}
+#log10RhoCSol .rs-handle {
+    background-color: #CCCCCC;
+}
+#log10RhoCSol .rs-border {
+    border-color: white;
+}
+
+#yFrac .rs-range-color {
+    //background-color: #5673E7;
+    background-color: cyan;
+}                 
+#yFrac .rs-path-color {
+    background-color: #dedede;
+    //background-color: red;
+}
+#yFrac .rs-handle {
+    background-color: #CCCCCC;
+}
+#yFrac .rs-border {
+    border-color: white;
+}
+
+#zFrac .rs-range-color {
+    //background-color: #5673E7;
+    background-color: cyan;
+}                 
+#zFrac .rs-path-color {
+    background-color: #dedede;
+    //background-color: red;
+}
+#zFrac .rs-handle {
+    background-color: #CCCCCC;
+}
+#zFrac .rs-border {
+    border-color: white;
+}
+
+#GHTemp .rs-range-color  {
+    //background-color: #5673E7;
+    background-color: cyan;
+}
+#GHTemp .rs-path-color  {
+    background-color: #dedede;
+}
+#GHTemp .rs-handle  {
+    background-color: #CCCCCC;
+}
+#GHTemp .rs-border  {
+    border-color: white;
+}
+
+#Albedo .rs-range-color  {
+    //background-color: #5673E7;
+    background-color: cyan;
+}
+#Albedo .rs-path-color  {
+    background-color: #dedede;
+}
+#Albedo .rs-handle  {
+    background-color: #CCCCCC;
+}
+#Albedo .rs-border  {
+    border-color: white;
+}
+
+
