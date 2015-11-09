@@ -89,6 +89,14 @@ var betaPP = 4.0; //T_6 exponent
 var logEps0PP = function() {
     return Math.log(eps0PP);
 };
+
+//More realistic non-power law treatment:\
+//C&) 2nd Ed., p. 311
+var eps2PP = 0.241e4; //units consistent with ergs/g
+var logEps2PP = function() {
+    return Math.log(eps2PP);
+};
+
 //CNO cycle - H fusion catalyzed by Carbon, Nitrogen and Oxygen 
 var eps0CNO = 8.24e-24;  // ergs s^-1 cm^3 g^-2
 var betaCNO = 19.9; //T_6 exponent
@@ -97,10 +105,28 @@ var logEps0CNO = function() {
     return Math.log(eps0CNO);
 };
 
+//More realistic non-power law treatment:\
+//C&) 2nd Ed., p. 312  
+var eps2CNO = 8.67e24;  // units consistent with ergs/g
+var logEps2CNO = function() {
+    return Math.log(eps2CNO);
+};
+
+//Triple alpha process for He fusion:
+
+//More realistic non-power law treatment:\
+//C&) 2nd Ed., p. 312  
+var eps2Ta = 50.9e4;  // units consistent with ergs/g
+var logEps2Ta = function() {
+    return Math.log(eps2Ta);
+};
+
+
 // threshold for H-fusion
 //C&O 2nd Ed., p. 302
-var fusionTemp = 1.0e7; //K 
-
+var fusionPPTemp = 1.0e7; //K 
+//For Triple-alpha process He fusion - ??
+var fusionTaTemp = 1.0e8; //K 
 
 
 var kappaBfFn = function(temp, rho, xFrac, zFrac) {
@@ -244,6 +270,10 @@ var ppChain = function(temp, rho, xFrac, zFrac) { //cnoFrac
 //proton-proton (p-p) chain H fusion
     var eps0PP = 1.08e-5; // ergs s^-1 cm^3 g^-2
     var betaPP = 4.0; //T_6 exponent
+    var eps2PP = 0.241e4; //units consistent with ergs/g
+    var logEps2PP = function() {
+        return Math.log(eps2PP);
+    };
 
     var logEps0PP = function() {
         return Math.log(eps0PP);
@@ -251,7 +281,6 @@ var ppChain = function(temp, rho, xFrac, zFrac) { //cnoFrac
 
 // threshold for H-fusion
 //C&O 2nd Ed., p. 302
-    var fusionTemp = 1.0e7; //K 
 
     // H fusion
 
@@ -263,26 +292,51 @@ var ppChain = function(temp, rho, xFrac, zFrac) { //cnoFrac
     //p-p chain
 
     var logRatePP;
-    var logT6 = Math.log(1.0e-6 * temp);  //log "T6" temperature
+    var T6 = 1.0e-6 * temp;
+    var logT6 = Math.log(T6);  //log "T6" temperature    
     var logRho = Math.log(rho);
     var logX = Math.log(xFrac);
 
-    logRatePP = logEps0PP() + logRho + 2.0 * logX
-            + betaPP * logT6;
+    // logRatePP = logEps0PP() + logRho + 2.0 * logX
+    //        + betaPP * logT6;
+
+    var fpp = 1.0; //For now...   p-p chain screening factor
+    //double psipp = 1.0;  //For now...  correction factor for simultaneous occurence of PPI, PPII & PPIII chains
+    //double Cpp = 1.0; //For now... higher order correction terms
+    //Notes: from C&) statstar.Physics.Nuclear
+    //       PP chains (see Hansen and Kawaler, Eq. 6.65, 6.73, and 6.74)
+    //       psipp = 1 + 1.412E8*(1/X - 1)*EXP(-49.98*T6**(-onethird))
+    var xTerm = (1.0 / xFrac - 1.0);
+    var logPsipp = Math.log(1.412e8) + Math.log(xTerm) - 49.98 * Math.pow(T6, -0.333333);
+    var psipp = 1.0 + Math.exp(logPsipp);
+    //Cpp = 1 + 0.0123*T6**onethird + 0.0109*T6**twothirds + 0.000938*T6
+    var logTerm1 = Math.log(0.0123) + (1.0 / 3.0) * Math.log(T6);
+    var logTerm2 = Math.log(0.0109) + (2.0 / 3.0) * Math.log(T6);
+    var logTerm3 = Math.log(0.000938) + Math.log(T6);
+    var Cpp = 1.0 + Math.exp(logTerm1) + Math.exp(logTerm2) + Math.exp(logTerm3);
+    //
+    logRatePP = logEps2PP() + logRho + 2.0 * logX
+            - (2.0 / 3.0) * logT6 - 33.80 * Math.pow(T6, -0.333333)
+            + Math.log(fpp) + Math.log(psipp) + Math.log(Cpp);
+
 
 
     return Math.exp(logRatePP);
 
 };
 
-var cnoCycle = function(temp, rho, xFrac, zFrac) { //cnoFrac
+var cnoCycle = function(temp, rho, xFrac, zFrac) { 
 
     //Nuclear E generation data (C&O 2nd Ed. p. 311 - 312):
 // Power law mass power generation rate pre-factors
-    
+
 //CNO cycle - H fusion catalyzed by Carbon, Nitrogen and Oxygen 
     var eps0CNO = 8.24e-24;  // ergs s^-1 cm^3 g^-2
     var betaCNO = 19.9; //T_6 exponent
+    var eps2CNO = 8.67e24;  // units consistent with ergs/g
+    var logEps2CNO = function() {
+        return Math.log(eps2CNO);
+    };
 
     var logEps0CNO = function() {
         return Math.log(eps0CNO);
@@ -290,7 +344,6 @@ var cnoCycle = function(temp, rho, xFrac, zFrac) { //cnoFrac
 
 // threshold for H-fusion
 //C&O 2nd Ed., p. 302
-    var fusionTemp = 1.0e7; //K 
 
     // H fusion
 
@@ -301,18 +354,67 @@ var cnoCycle = function(temp, rho, xFrac, zFrac) { //cnoFrac
 
     // CNO cycle
     // Need value for X_CNO mass fraction!
-    var logT6 = Math.log(1.0e-6 * temp);  //log "T6" temperature
+    var T6 = 1.0e-6 * temp;
+    var logT6 = Math.log(T6);  //log "T6" temperature    
     var logRho = Math.log(rho);
     var logX = Math.log(xFrac);
     var logRateCNO;
     var logXCNO = Math.log(zFrac / 2.0);
 
-    logRateCNO = logEps0CNO() + logRho + logX + logXCNO
-            + betaCNO * logT6;
+    //logRateCNO = logEps0CNO() + logRho + logX + logXCNO
+    //        + betaCNO * logT6;
+
+    //More realistic non-power law treatment:
+    //double Ccno = 1.0; //For now... higher order correction terms
+    //Notes: from C&) statstar.Physics.Nuclear
+    //CNO cycle (Kippenhahn and Weigert, Eq. 18.65)
+    //CCNO = 1 + 0.0027*T6**onethird - 0.00778*T6**twothirds - 0.000149*T6         
+    var logTerm1 = Math.log(0.0027) + (1.0 / 3.0) * Math.log(T6);
+    var logTerm2 = Math.log(0.00778) + (2.0 / 3.0) * Math.log(T6);
+    var logTerm3 = Math.log(0.000149) + Math.log(T6);
+    var Ccno = 1.0 + Math.exp(logTerm1) - Math.exp(logTerm2) - Math.exp(logTerm3);
+    //
+    logRateCNO = logEps2CNO() + logRho + logX + logXCNO
+            - (2.0 / 3.0) * logT6 - 152.28 * Math.pow(T6, -0.333333)
+            + Math.log(Ccno);
+
 
     //System.out.println("totEpsilon " + totEpsilon);
     return Math.exp(logRateCNO);
 
+
+};
+
+var TaProcess = function(temp, rho, yFrac) { 
+
+    var eps2Ta = 50.9e4;  // units consistent with ergs/g
+    var logEps2Ta = function() {
+        return Math.log(eps2Ta);
+    };
+    // He fusion
+    // Assumes screening factor, corrections for PPII and PPIII and
+    // higher order corrections are all unity
+    // C&O 2nd Ed. p. 311-312
+    // Triple alpha process
+    // Need value for X_CNO mass fraction!
+    var T8 = 1.0e-8 * temp;
+    var logT8 = Math.log(T8);  //log "T6" temperature
+    var logRho = Math.log(rho);
+    var logY = Math.log(yFrac);
+    var logRateTa;
+
+    //More realistic non-power law treatment:
+    var fTa = 1.0; //For now... Triple alpha process screening factor
+    logRateTa = logEps2Ta() + 2.0 * logRho + 3.0 * logY
+            - 3.0 * logT8 - (44.027 / T8);
+    // + Math.log(fpp) + Math.log(psipp) + Math.log(Cpp);       
+
+    //System.out.println("totEpsilon " + totEpsilon);
+    return Math.exp(logRateTa);
+
+    //Notes: from C&) statstar.Physics.Nuclear
+    //CNO cycle (Kippenhahn and Weigert, Eq. 18.65)
+    //CCNO = 1 + 0.0027*T6**onethird - 0.00778*T6**twothirds - 0.000149*T6         
 }
 
 
