@@ -730,7 +730,7 @@ function main() {
     massInt[j] = rhoC * 4.0 * Math.PI * Math.pow(radInt[j], 3) / 3.0;
     massShell[j] = massInt[j];
 
-    if (tempShell[j] >= 1.0e7) {
+    if (tempShell[j] >= fusionPPTemp) {
         epsPpShell[j] = ppChain(tempShell[j], rhoShell[j], xFrac, zFrac); //H fusion p-p chain
         epsCnoShell[j] = cnoCycle(tempShell[j], rhoShell[j], xFrac, zFrac); //H fusion CNO cycle
         epsShell[j] = epsPpShell[j] + epsCnoShell[j];
@@ -869,7 +869,7 @@ function main() {
         massInt[i] = massInt[i - 1] + massShell[i];
         //epsShell[i] = Power.nuclear(tempShell[i], rhoShell[i], xFrac, zFrac);
 
-        if (tempShell[i] >= 1.0e7) {
+        if (tempShell[i] >= fusionPPTemp) {
             iCore = i;
             epsPpShell[i] = ppChain(tempShell[i], rhoShell[i], xFrac, zFrac); //H fusion p-p chain
             epsCnoShell[i] = cnoCycle(tempShell[i], rhoShell[i], xFrac, zFrac); //H fusion CNO cycle
